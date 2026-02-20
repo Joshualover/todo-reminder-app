@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试页面切换</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .page { display: none; padding: 20px; background: #f0f0f0; margin-bottom: 20px; }
+        .page.active { display: block; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #ccc; display: flex; }
+        .nav-item { flex: 1; padding: 15px; text-align: center; border: none; background: none; cursor: pointer; }
+        .nav-item.active { background: #667eea; color: white; }
+        .container { padding-bottom: 60px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📝 待办清单测试</h1>
+
+        <div class="page active" id="page-todo">
+            <h2>📋 待办事项页面</h2>
+            <p>这是待办事项的内容</p>
+        </div>
+
+        <div class="page" id="page-pomodoro">
+            <h2>🍅 番茄时钟页面</h2>
+            <p>这是番茄时钟的内容</p>
+        </div>
+
+        <div class="page" id="page-recurring">
+            <h2>🔄 定期任务页面</h2>
+            <p>这是定期任务的内容</p>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <button class="nav-item active" data-page="todo">📋 待办</button>
+        <button class="nav-item" data-page="pomodoro">🍅 番茄</button>
+        <button class="nav-item" data-page="recurring">🔄 定期</button>
+    </nav>
+
+    <script>
+        document.querySelectorAll('.nav-item').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const pageName = btn.dataset.page;
+
+                // 更新按钮状态
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.classList.toggle('active', item.dataset.page === pageName);
+                });
+
+                // 更新页面显示
+                document.querySelectorAll('.page').forEach(page => {
+                    page.classList.toggle('active', page.id === `page-${pageName}`);
+                });
+
+                console.log('切换到页面:', pageName);
+            });
+        });
+    </script>
+</body>
+</html>
