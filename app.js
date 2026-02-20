@@ -243,8 +243,8 @@ class TodoApp {
         }
 
         this.dom.todoList.innerHTML = filteredTodos.map(todo => `
-            <li class="todo-item priority-${todo.priority} ${todo.completed ? 'completed' : ''}">
-                <input type="checkbox" class="todo-checkbox" ${todo.completed ? 'checked' : ''} />
+            <li class="todo-item priority-${todo.priority} ${todo.completed ? 'completed' : ''}" data-id="${todo.id}">
+                <input type="checkbox" class="todo-checkbox" ${todo.completed ? 'checked' : ''} data-id="${todo.id}" />
                 <div class="todo-content">
                     <div class="todo-text">${this.escapeHtml(todo.text)}</div>
                     <div class="todo-meta">
@@ -253,22 +253,31 @@ class TodoApp {
                     </div>
                 </div>
                 <div class="todo-actions">
-                    <button class="todo-btn edit-btn" title="编辑">✏️</button>
-                    <button class="todo-btn delete-btn" title="删除">🗑️</button>
+                    <button class="todo-btn edit-btn" data-id="${todo.id}" title="编辑">✏️</button>
+                    <button class="todo-btn delete-btn" data-id="${todo.id}" title="删除">🗑️</button>
                 </div>
             </li>
         `).join('');
 
-        this.dom.todoList.querySelectorAll('.todo-checkbox').forEach((checkbox, index) => {
-            checkbox.addEventListener('change', () => this.toggleTodo(filteredTodos[index].id));
+        this.dom.todoList.querySelectorAll('.todo-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', (e) => {
+                const id = parseInt(e.target.dataset.id);
+                this.toggleTodo(id);
+            });
         });
 
-        this.dom.todoList.querySelectorAll('.edit-btn').forEach((btn, index) => {
-            btn.addEventListener('click', () => this.editTodo(filteredTodos[index].id));
+        this.dom.todoList.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const id = parseInt(e.target.dataset.id);
+                this.editTodo(id);
+            });
         });
 
-        this.dom.todoList.querySelectorAll('.delete-btn').forEach((btn, index) => {
-            btn.addEventListener('click', () => this.deleteTodo(filteredTodos[index].id));
+        this.dom.todoList.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const id = parseInt(e.target.dataset.id);
+                this.deleteTodo(id);
+            });
         });
     }
 
