@@ -334,3 +334,211 @@ header h1 {
         margin-top: 10px;
     }
 }
+
+/* ========== 番茄时钟样式 ========== */
+.pomodoro-section {
+    background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.pomodoro-section h2 {
+    color: #2d3436;
+    margin-bottom: 15px;
+    font-size: 1.3em;
+}
+
+.pomodoro-display {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 15px;
+}
+
+#pomodoroTimer {
+    font-size: 4em;
+    font-weight: bold;
+    color: #2d3436;
+    font-family: 'Courier New', monospace;
+    margin-bottom: 10px;
+}
+
+#pomodoroStatus {
+    font-size: 1.2em;
+    color: #636e72;
+}
+
+.pomodoro-controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.pomodoro-controls button {
+    padding: 12px 24px;
+    border: 2px solid #2d3436;
+    background: white;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.pomodoro-controls button:hover:not(:disabled) {
+    background: #2d3436;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.pomodoro-controls button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ========== 定期任务样式 ========== */
+.recurring-section {
+    background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.recurring-section h2 {
+    color: white;
+    margin-bottom: 15px;
+    font-size: 1.3em;
+}
+
+.recurring-input {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.recurring-input input[type="text"] {
+    flex: 1;
+    min-width: 200px;
+    padding: 12px;
+    border: 2px solid white;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.recurring-input select {
+    padding: 12px;
+    border: 2px solid white;
+    border-radius: 8px;
+    font-size: 14px;
+    background: white;
+    cursor: pointer;
+}
+
+.recurring-input button {
+    padding: 12px 24px;
+    background: white;
+    color: #6c5ce7;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+.recurring-input button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.recurring-list {
+    list-style: none;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.recurring-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px;
+    margin-bottom: 8px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 8px;
+    transition: all 0.3s;
+}
+
+.recurring-item:hover {
+    background: white;
+    transform: translateX(5px);
+}
+
+.recurring-content {
+    flex: 1;
+}
+
+.recurring-text {
+    font-size: 15px;
+    color: #2d3436;
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+
+.recurring-meta {
+    font-size: 12px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.recurring-badge {
+    padding: 4px 10px;
+    background: #6c5ce7;
+    color: white;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+/* ========== 重复任务徽章 ========== */
+.recurrence-badge {
+    padding: 4px 10px;
+    background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+    color: white;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+/* ========== 响应式优化 ========== */
+@media (max-width: 768px) {
+    .pomodoro-section,
+    .recurring-section {
+        padding: 15px;
+    }
+
+    #pomodoroTimer {
+        font-size: 3em;
+    }
+
+    .pomodoro-controls {
+        flex-direction: column;
+    }
+
+    .pomodoro-controls button {
+        width: 100%;
+    }
+
+    .recurring-input {
+        flex-direction: column;
+    }
+
+    .recurring-input input[type="text"],
+    .recurring-input select,
+    .recurring-input button {
+        width: 100%;
+    }
+}

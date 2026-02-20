@@ -1,8 +1,10 @@
-// 待办事项应用
+// 待办事项应用 v2.0 - 新增定期任务和番茄时钟
 class TodoApp {
     constructor() {
         this.todos = JSON.parse(localStorage.getItem('todos')) || [];
+        this.recurringTasks = JSON.parse(localStorage.getItem('recurringTasks')) || [];
         this.currentFilter = 'all';
+        this.pomodoro = null;
         this.init();
     }
 
@@ -12,6 +14,8 @@ class TodoApp {
         this.requestNotificationPermission();
         this.render();
         this.startReminderCheck();
+        this.initPomodoro();
+        this.startRecurringTaskCheck();
     }
 
     cacheDOM() {
@@ -19,6 +23,7 @@ class TodoApp {
             todoInput: document.getElementById('todoInput'),
             reminderInput: document.getElementById('reminderInput'),
             priorityInput: document.getElementById('priorityInput'),
+            recurrenceInput: document.getElementById('recurrenceInput'),
             addBtn: document.getElementById('addBtn'),
             todoList: document.getElementById('todoList'),
             filterBtns: document.querySelectorAll('.filter-btn'),
@@ -29,7 +34,19 @@ class TodoApp {
             exportBtn: document.getElementById('exportBtn'),
             importBtn: document.getElementById('importBtn'),
             importFile: document.getElementById('importFile'),
-            notification: document.getElementById('notification')
+            notification: document.getElementById('notification'),
+            // 番茄时钟 DOM
+            pomodoroTimer: document.getElementById('pomodoroTimer'),
+            pomodoroStatus: document.getElementById('pomodoroStatus'),
+            pomodoroStart: document.getElementById('pomodoroStart'),
+            pomodoroPause: document.getElementById('pomodoroPause'),
+            pomodoroReset: document.getElementById('pomodoroReset'),
+            pomodoroMode: document.getElementById('pomodoroMode'),
+            // 定期任务 DOM
+            recurringList: document.getElementById('recurringList'),
+            addRecurringBtn: document.getElementById('addRecurringBtn'),
+            recurringInput: document.getElementById('recurringInput'),
+            recurringInterval: document.getElementById('recurringInterval')
         };
     }
 
@@ -51,6 +68,15 @@ class TodoApp {
         this.dom.exportBtn.addEventListener('click', () => this.exportData());
         this.dom.importBtn.addEventListener('click', () => this.dom.importFile.click());
         this.dom.importFile.addEventListener('change', (e) => this.importData(e));
+
+        // 番茄时钟事件
+        this.dom.pomodoroStart.addEventListener('click', () => this.startPomodoro());
+        this.dom.pomodoroPause.addEventListener('click', () => this.pausePomodoro());
+        this.dom.pomodoroReset.addEventListener('click', () => this.resetPomodoro());
+        this.dom.pomodoroMode.addEventListener('click', () => this.switchPomodoroMode());
+
+        // 定期任务事件
+        this.dom.addRecurringBtn.addEventListener('click', () => this.addRecurringTask());
     }
 
     async requestNotificationPermission() {
@@ -59,6 +85,7 @@ class TodoApp {
         }
     }
 
+    // ========== 待办事项功能 ==========
     addTodo() {
         const text = this.dom.todoInput.value.trim();
         if (!text) {
@@ -68,12 +95,14 @@ class TodoApp {
 
         const reminder = this.dom.reminderInput.value;
         const priority = this.dom.priorityInput.value;
+        const recurrence = this.dom.recurrenceInput.value;
 
         const todo = {
             id: Date.now(),
             text,
             reminder: reminder || null,
             priority,
+            recurrence: recurrence || null, // 新增：定期任务
             completed: false,
             createdAt: new Date().toISOString()
         };
@@ -94,6 +123,12 @@ class TodoApp {
         const todo = this.todos.find(t => t.id === id);
         if (todo) {
             todo.completed = !todo.completed;
+            
+            // 如果是定期任务，完成后自动生成下一次
+            if (todo.completed && todo.recurrence) {
+                this.createNextOccurrence(todo);
+            }
+            
             this.save();
             this.render();
         }
@@ -136,6 +171,297 @@ class TodoApp {
         }
     }
 
+    // ========== 定期任务功能 ==========
+    addRecurringTask() {
+        const text = this.dom.recurringInput.value.trim();
+        const interval = this.dom.recurringInterval.value;
+
+        if (!text) {
+            this.showNotification('请输入定期任务内容', 'error');
+            return;
+        }
+
+        const task = {
+            id: Date.now(),
+            text,
+            interval, // daily, weekly, monthly, yearly
+            lastCreated: null,
+            createdAt: new Date().toISOString()
+        };
+
+        this.recurringTasks.push(task);
+        this.saveRecurring();
+        this.renderRecurring();
+        this.dom.recurringInput.value = '';
+        this.showNotification('定期任务已添加！');
+    }
+
+    createNextOccurrence(todo) {
+        const now = new Date();
+        let nextDate = new Date(now);
+
+        switch (todo.recurrence) {
+            case 'daily':
+                nextDate.setDate(nextDate.getDate() + 1);
+                break;
+            case 'weekly':
+                nextDate.setDate(nextDate.getDate() + 7);
+                break;
+            case 'monthly':
+                nextDate.setMonth(nextDate.getMonth() + 1);
+                break;
+            case 'yearly':
+                nextDate.setFullYear(nextDate.getFullYear() + 1);
+                break;
+        }
+
+        // 创建新的待办事项
+        const newTodo = {
+            id: Date.now(),
+            text: todo.text,
+            reminder: nextDate.toISOString().slice(0, 16),
+            priority: todo.priority,
+            recurrence: todo.recurrence,
+            completed: false,
+            createdAt: new Date().toISOString()
+        };
+
+        this.todos.push(newTodo);
+        this.save();
+        this.showNotification(`已创建下次任务：${todo.text}`);
+    }
+
+    startRecurringTaskCheck() {
+        // 每小时检查一次定期任务
+        setInterval(() => {
+            this.recurringTasks.forEach(task => {
+                if (this.shouldCreateTask(task)) {
+                    this.createTodoFromRecurring(task);
+                }
+            });
+        }, 60 * 60 * 1000);
+    }
+
+    shouldCreateTask(task) {
+        const now = new Date();
+        const lastCreated = task.lastCreated ? new Date(task.lastCreated) : null;
+
+        if (!lastCreated) return true;
+
+        const diffDays = Math.floor((now - lastCreated) / (1000 * 60 * 60 * 24));
+
+        switch (task.interval) {
+            case 'daily': return diffDays >= 1;
+            case 'weekly': return diffDays >= 7;
+            case 'monthly': return diffDays >= 30;
+            case 'yearly': return diffDays >= 365;
+            default: return false;
+        }
+    }
+
+    createTodoFromRecurring(task) {
+        const now = new Date();
+        let dueDate = new Date(now);
+
+        switch (task.interval) {
+            case 'daily':
+                dueDate.setDate(dueDate.getDate() + 1);
+                break;
+            case 'weekly':
+                dueDate.setDate(dueDate.getDate() + 7);
+                break;
+            case 'monthly':
+                dueDate.setMonth(dueDate.getMonth() + 1);
+                break;
+            case 'yearly':
+                dueDate.setFullYear(dueDate.getFullYear() + 1);
+                break;
+        }
+
+        const todo = {
+            id: Date.now(),
+            text: task.text,
+            reminder: dueDate.toISOString().slice(0, 16),
+            priority: 'medium',
+            recurrence: task.interval,
+            completed: false,
+            createdAt: new Date().toISOString()
+        };
+
+        this.todos.push(todo);
+        task.lastCreated = now.toISOString();
+        this.save();
+        this.saveRecurring();
+        this.render();
+        this.showNotification(`定期任务已创建：${task.text}`);
+    }
+
+    deleteRecurringTask(id) {
+        this.recurringTasks = this.recurringTasks.filter(t => t.id !== id);
+        this.saveRecurring();
+        this.renderRecurring();
+        this.showNotification('定期任务已删除');
+    }
+
+    renderRecurring() {
+        if (!this.dom.recurringList) return;
+
+        if (this.recurringTasks.length === 0) {
+            this.dom.recurringList.innerHTML = '<p class="empty-state">还没有定期任务</p>';
+            return;
+        }
+
+        this.dom.recurringList.innerHTML = this.recurringTasks.map(task => `
+            <li class="recurring-item">
+                <div class="recurring-content">
+                    <div class="recurring-text">${this.escapeHtml(task.text)}</div>
+                    <div class="recurring-meta">
+                        <span class="recurring-badge">${this.getIntervalText(task.interval)}</span>
+                    </div>
+                </div>
+                <button class="todo-btn delete-btn" onclick="app.deleteRecurringTask(${task.id})">🗑️</button>
+            </li>
+        `).join('');
+    }
+
+    getIntervalText(interval) {
+        const map = {
+            daily: '每天',
+            weekly: '每周',
+            monthly: '每月',
+            yearly: '每年'
+        };
+        return map[interval] || interval;
+    }
+
+    // ========== 番茄时钟功能 ==========
+    initPomodoro() {
+        this.pomodoro = {
+            minutes: 25,
+            seconds: 0,
+            isRunning: false,
+            isWorkMode: true, // true = 工作模式, false = 休息模式
+            interval: null
+        };
+        this.updatePomodoroDisplay();
+    }
+
+    startPomodoro() {
+        if (this.pomodoro.isRunning) return;
+
+        this.pomodoro.isRunning = true;
+        this.updatePomodoroButtons();
+        
+        this.pomodoro.interval = setInterval(() => {
+            if (this.pomodoro.seconds === 0) {
+                if (this.pomodoro.minutes === 0) {
+                    this.completePomodoro();
+                } else {
+                    this.pomodoro.minutes--;
+                    this.pomodoro.seconds = 59;
+                }
+            } else {
+                this.pomodoro.seconds--;
+            }
+            this.updatePomodoroDisplay();
+        }, 1000);
+
+        this.showNotification(this.pomodoro.isWorkMode ? '🍅 开始专注工作！' : '☕ 开始休息！');
+    }
+
+    pausePomodoro() {
+        if (!this.pomodoro.isRunning) return;
+
+        this.pomodoro.isRunning = false;
+        clearInterval(this.pomodoro.interval);
+        this.updatePomodoroButtons();
+        this.showNotification('⏸️ 番茄时钟已暂停');
+    }
+
+    resetPomodoro() {
+        this.pausePomodoro();
+        this.pomodoro.minutes = this.pomodoro.isWorkMode ? 25 : 5;
+        this.pomodoro.seconds = 0;
+        this.updatePomodoroDisplay();
+        this.showNotification('🔄 番茄时钟已重置');
+    }
+
+    switchPomodoroMode() {
+        this.pausePomodoro();
+        this.pomodoro.isWorkMode = !this.pomodoro.isWorkMode;
+        this.pomodoro.minutes = this.pomodoro.isWorkMode ? 25 : 5;
+        this.pomodoro.seconds = 0;
+        this.updatePomodoroDisplay();
+        this.showNotification(this.pomodoro.isWorkMode ? '切换到工作模式' : '切换到休息模式');
+    }
+
+    completePomodoro() {
+        this.pausePomodoro();
+        
+        if (this.pomodoro.isWorkMode) {
+            // 工作完成，切换到休息
+            this.showNotification('🎉 专注完成！休息一下吧~');
+            this.pomodoro.isWorkMode = false;
+            this.pomodoro.minutes = 5;
+            this.pomodoro.seconds = 0;
+        } else {
+            // 休息完成，切换到工作
+            this.showNotification('☕ 休息结束！继续加油~');
+            this.pomodoro.isWorkMode = true;
+            this.pomodoro.minutes = 25;
+            this.pomodoro.seconds = 0;
+        }
+        
+        this.updatePomodoroDisplay();
+        
+        // 播放提示音
+        this.playNotificationSound();
+    }
+
+    updatePomodoroDisplay() {
+        if (!this.dom.pomodoroTimer) return;
+
+        const minutes = String(this.pomodoro.minutes).padStart(2, '0');
+        const seconds = String(this.pomodoro.seconds).padStart(2, '0');
+        this.dom.pomodoroTimer.textContent = `${minutes}:${seconds}`;
+        
+        if (this.dom.pomodoroStatus) {
+            this.dom.pomodoroStatus.textContent = this.pomodoro.isWorkMode ? '🍅 工作模式' : '☕ 休息模式';
+        }
+        
+        // 更新页面标题
+        document.title = `${minutes}:${seconds} - ${this.pomodoro.isWorkMode ? '专注中' : '休息中'}`;
+    }
+
+    updatePomodoroButtons() {
+        if (this.dom.pomodoroStart) {
+            this.dom.pomodoroStart.disabled = this.pomodoro.isRunning;
+        }
+        if (this.dom.pomodoroPause) {
+            this.dom.pomodoroPause.disabled = !this.pomodoro.isRunning;
+        }
+    }
+
+    playNotificationSound() {
+        // 创建简单的提示音
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.value = 800;
+        oscillator.type = 'sine';
+        
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.5);
+    }
+
+    // ========== 渲染和辅助功能 ==========
     updateFilterButtons() {
         this.dom.filterBtns.forEach(btn => {
             btn.classList.toggle('active', btn.dataset.filter === this.currentFilter);
@@ -193,6 +519,7 @@ class TodoApp {
                     <div class="todo-text">${this.escapeHtml(todo.text)}</div>
                     <div class="todo-meta">
                         ${todo.reminder ? `<span>${this.formatReminder(todo.reminder)}</span>` : ''}
+                        ${todo.recurrence ? `<span class="recurrence-badge">${this.getIntervalText(todo.recurrence)}</span>` : ''}
                         <span>📅 ${new Date(todo.createdAt).toLocaleDateString('zh-CN')}</span>
                     </div>
                 </div>
@@ -255,7 +582,6 @@ class TodoApp {
     }
 
     startReminderCheck() {
-        // 每分钟检查一次待提醒的事项
         setInterval(() => {
             const now = new Date();
             this.todos.forEach(todo => {
@@ -272,7 +598,11 @@ class TodoApp {
     }
 
     exportData() {
-        const dataStr = JSON.stringify(this.todos, null, 2);
+        const data = {
+            todos: this.todos,
+            recurringTasks: this.recurringTasks
+        };
+        const dataStr = JSON.stringify(data, null, 2);
         const dataBlob = new Blob([dataStr], { type: 'application/json' });
         const url = URL.createObjectURL(dataBlob);
         const link = document.createElement('a');
@@ -290,10 +620,10 @@ class TodoApp {
         const reader = new FileReader();
         reader.onload = (e) => {
             try {
-                const importedTodos = JSON.parse(e.target.result);
-                if (Array.isArray(importedTodos)) {
-                    this.todos = [...importedTodos, ...this.todos];
-                    // 去重
+                const data = JSON.parse(e.target.result);
+                
+                if (data.todos && Array.isArray(data.todos)) {
+                    this.todos = [...data.todos, ...this.todos];
                     const uniqueTodos = [];
                     const seen = new Set();
                     this.todos.forEach(todo => {
@@ -304,9 +634,25 @@ class TodoApp {
                     });
                     this.todos = uniqueTodos;
                     this.save();
-                    this.render();
-                    this.showNotification(`已导入 ${importedTodos.length} 条待办事项`);
                 }
+
+                if (data.recurringTasks && Array.isArray(data.recurringTasks)) {
+                    this.recurringTasks = [...data.recurringTasks, ...this.recurringTasks];
+                    const uniqueRecurring = [];
+                    const seen = new Set();
+                    this.recurringTasks.forEach(task => {
+                        if (!seen.has(task.id)) {
+                            seen.add(task.id);
+                            uniqueRecurring.push(task);
+                        }
+                    });
+                    this.recurringTasks = uniqueRecurring;
+                    this.saveRecurring();
+                }
+
+                this.render();
+                this.renderRecurring();
+                this.showNotification('数据已导入');
             } catch (error) {
                 this.showNotification('导入失败，文件格式错误', 'error');
             }
@@ -319,10 +665,15 @@ class TodoApp {
         localStorage.setItem('todos', JSON.stringify(this.todos));
     }
 
+    saveRecurring() {
+        localStorage.setItem('recurringTasks', JSON.stringify(this.recurringTasks));
+    }
+
     clearInputs() {
         this.dom.todoInput.value = '';
         this.dom.reminderInput.value = '';
         this.dom.priorityInput.value = 'medium';
+        this.dom.recurrenceInput.value = 'none';
     }
 
     showNotification(message, type = 'success') {
@@ -343,5 +694,5 @@ class TodoApp {
 
 // 初始化应用
 document.addEventListener('DOMContentLoaded', () => {
-    new TodoApp();
+    window.app = new TodoApp();
 });
