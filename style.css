@@ -36,6 +36,74 @@ header h1 {
     font-size: 1.1em;
 }
 
+/* ========== 标签页导航 ========== */
+.tabs-nav {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.tab-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 15px 10px;
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    transition: all 0.3s;
+    color: #666;
+}
+
+.tab-btn:hover {
+    background: #f5f5f5;
+    color: #667eea;
+}
+
+.tab-btn.active {
+    color: #667eea;
+    border-bottom-color: #667eea;
+}
+
+.tab-icon {
+    font-size: 2em;
+}
+
+.tab-text {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* ========== 标签页内容 ========== */
+.tabs-content {
+    position: relative;
+}
+
+.tab-pane {
+    display: none;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.tab-pane.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ========== 输入区域 ========== */
 .input-section {
     display: flex;
     gap: 10px;
@@ -89,6 +157,7 @@ header h1 {
     transform: translateY(0);
 }
 
+/* ========== 筛选按钮 ========== */
 .filter-section {
     display: flex;
     gap: 10px;
@@ -117,6 +186,7 @@ header h1 {
     border-color: transparent;
 }
 
+/* ========== 统计 ========== */
 .stats {
     display: flex;
     gap: 20px;
@@ -133,6 +203,7 @@ header h1 {
     font-weight: 500;
 }
 
+/* ========== 待办列表 ========== */
 .todo-list {
     list-style: none;
     margin-bottom: 20px;
@@ -237,6 +308,7 @@ header h1 {
     background: #c0392b;
 }
 
+/* ========== 操作按钮 ========== */
 .actions {
     display: flex;
     gap: 10px;
@@ -260,6 +332,269 @@ header h1 {
     transform: translateY(-2px);
 }
 
+/* ========== 番茄时钟 ========== */
+.pomodoro-section {
+    text-align: center;
+    padding: 20px;
+}
+
+.pomodoro-display {
+    background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+    border-radius: 20px;
+    padding: 40px 20px;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+#pomodoroTimer {
+    font-size: 5em;
+    font-weight: bold;
+    color: #2d3436;
+    font-family: 'Courier New', monospace;
+    margin-bottom: 15px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#pomodoroStatus {
+    font-size: 1.5em;
+    color: #2d3436;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.pomodoro-tips p {
+    color: #636e72;
+    font-size: 1.1em;
+    margin-top: 15px;
+}
+
+.pomodoro-controls {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+}
+
+.pomodoro-controls button {
+    padding: 15px 30px;
+    border: 2px solid #2d3436;
+    background: white;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.3s;
+    min-width: 120px;
+}
+
+.pomodoro-controls button:hover:not(:disabled) {
+    background: #2d3436;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.pomodoro-controls button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pomodoro-stats {
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 30px;
+    text-align: left;
+}
+
+.pomodoro-stats h3 {
+    color: #2d3436;
+    margin-bottom: 20px;
+    font-size: 1.3em;
+}
+
+.pomodoro-stats ul {
+    list-style: none;
+}
+
+.pomodoro-stats li {
+    padding: 12px 0;
+    color: #636e72;
+    font-size: 1.05em;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.pomodoro-stats li:last-child {
+    border-bottom: none;
+}
+
+/* ========== 定期任务 ========== */
+.recurring-section {
+    padding: 20px;
+}
+
+.recurring-section h2 {
+    color: #2d3436;
+    margin-bottom: 10px;
+    font-size: 1.8em;
+}
+
+.section-desc {
+    color: #636e72;
+    margin-bottom: 25px;
+    font-size: 1.05em;
+}
+
+.recurring-input {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.recurring-input input[type="text"] {
+    flex: 1;
+    min-width: 200px;
+    padding: 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 15px;
+}
+
+.recurring-input select {
+    padding: 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 15px;
+    background: white;
+    cursor: pointer;
+}
+
+.recurring-input button {
+    padding: 15px 30px;
+    background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+.recurring-input button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(108, 92, 231, 0.4);
+}
+
+.recurring-examples {
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 30px;
+}
+
+.recurring-examples h3 {
+    color: #2d3436;
+    margin-bottom: 20px;
+    font-size: 1.3em;
+}
+
+.example-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.example-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px;
+    background: white;
+    border-radius: 10px;
+    transition: all 0.3s;
+}
+
+.example-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.example-icon {
+    font-size: 2em;
+}
+
+.example-text {
+    color: #2d3436;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.recurring-section h3 {
+    color: #2d3436;
+    margin: 30px 0 20px 0;
+    font-size: 1.5em;
+}
+
+.recurring-list {
+    list-style: none;
+}
+
+.recurring-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px;
+    margin-bottom: 10px;
+    background: #f9f9f9;
+    border-radius: 10px;
+    border-left: 4px solid #6c5ce7;
+    transition: all 0.3s;
+}
+
+.recurring-item:hover {
+    background: white;
+    transform: translateX(5px);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.recurring-content {
+    flex: 1;
+}
+
+.recurring-text {
+    font-size: 16px;
+    color: #2d3436;
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+
+.recurring-meta {
+    font-size: 13px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.recurring-badge {
+    padding: 5px 12px;
+    background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);
+    color: white;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.recurrence-badge {
+    padding: 4px 10px;
+    background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+    color: white;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+/* ========== 通知 ========== */
 .notification {
     position: fixed;
     top: 20px;
@@ -295,6 +630,7 @@ header h1 {
     opacity: 0.5;
 }
 
+/* ========== 响应式设计 ========== */
 @media (max-width: 768px) {
     .container {
         padding: 20px;
@@ -302,6 +638,22 @@ header h1 {
 
     header h1 {
         font-size: 2em;
+    }
+
+    .tabs-nav {
+        flex-direction: row;
+    }
+
+    .tab-btn {
+        padding: 10px 5px;
+    }
+
+    .tab-icon {
+        font-size: 1.5em;
+    }
+
+    .tab-text {
+        font-size: 12px;
     }
 
     .input-section {
@@ -333,195 +685,9 @@ header h1 {
         width: 100%;
         margin-top: 10px;
     }
-}
-
-/* ========== 番茄时钟样式 ========== */
-.pomodoro-section {
-    background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
-    border-radius: 15px;
-    padding: 20px;
-    margin-bottom: 20px;
-    text-align: center;
-}
-
-.pomodoro-section h2 {
-    color: #2d3436;
-    margin-bottom: 15px;
-    font-size: 1.3em;
-}
-
-.pomodoro-display {
-    background: white;
-    border-radius: 10px;
-    padding: 20px;
-    margin-bottom: 15px;
-}
-
-#pomodoroTimer {
-    font-size: 4em;
-    font-weight: bold;
-    color: #2d3436;
-    font-family: 'Courier New', monospace;
-    margin-bottom: 10px;
-}
-
-#pomodoroStatus {
-    font-size: 1.2em;
-    color: #636e72;
-}
-
-.pomodoro-controls {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    flex-wrap: wrap;
-}
-
-.pomodoro-controls button {
-    padding: 12px 24px;
-    border: 2px solid #2d3436;
-    background: white;
-    border-radius: 10px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 600;
-    transition: all 0.3s;
-}
-
-.pomodoro-controls button:hover:not(:disabled) {
-    background: #2d3436;
-    color: white;
-    transform: translateY(-2px);
-}
-
-.pomodoro-controls button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-/* ========== 定期任务样式 ========== */
-.recurring-section {
-    background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%);
-    border-radius: 15px;
-    padding: 20px;
-    margin-bottom: 20px;
-}
-
-.recurring-section h2 {
-    color: white;
-    margin-bottom: 15px;
-    font-size: 1.3em;
-}
-
-.recurring-input {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 15px;
-    flex-wrap: wrap;
-}
-
-.recurring-input input[type="text"] {
-    flex: 1;
-    min-width: 200px;
-    padding: 12px;
-    border: 2px solid white;
-    border-radius: 8px;
-    font-size: 14px;
-}
-
-.recurring-input select {
-    padding: 12px;
-    border: 2px solid white;
-    border-radius: 8px;
-    font-size: 14px;
-    background: white;
-    cursor: pointer;
-}
-
-.recurring-input button {
-    padding: 12px 24px;
-    background: white;
-    color: #6c5ce7;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: all 0.3s;
-}
-
-.recurring-input button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-}
-
-.recurring-list {
-    list-style: none;
-    max-height: 200px;
-    overflow-y: auto;
-}
-
-.recurring-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px;
-    margin-bottom: 8px;
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 8px;
-    transition: all 0.3s;
-}
-
-.recurring-item:hover {
-    background: white;
-    transform: translateX(5px);
-}
-
-.recurring-content {
-    flex: 1;
-}
-
-.recurring-text {
-    font-size: 15px;
-    color: #2d3436;
-    font-weight: 500;
-    margin-bottom: 5px;
-}
-
-.recurring-meta {
-    font-size: 12px;
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
-.recurring-badge {
-    padding: 4px 10px;
-    background: #6c5ce7;
-    color: white;
-    border-radius: 12px;
-    font-size: 11px;
-    font-weight: 600;
-}
-
-/* ========== 重复任务徽章 ========== */
-.recurrence-badge {
-    padding: 4px 10px;
-    background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
-    color: white;
-    border-radius: 12px;
-    font-size: 11px;
-    font-weight: 600;
-}
-
-/* ========== 响应式优化 ========== */
-@media (max-width: 768px) {
-    .pomodoro-section,
-    .recurring-section {
-        padding: 15px;
-    }
 
     #pomodoroTimer {
-        font-size: 3em;
+        font-size: 3.5em;
     }
 
     .pomodoro-controls {
@@ -530,6 +696,10 @@ header h1 {
 
     .pomodoro-controls button {
         width: 100%;
+    }
+
+    .example-grid {
+        grid-template-columns: 1fr;
     }
 
     .recurring-input {

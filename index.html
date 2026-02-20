@@ -13,79 +13,138 @@
             <p class="subtitle">高效管理你的每一天</p>
         </header>
 
-        <!-- 番茄时钟 -->
-        <div class="pomodoro-section">
-            <h2>🍅 番茄时钟</h2>
-            <div class="pomodoro-display">
-                <div id="pomodoroTimer">25:00</div>
-                <div id="pomodoroStatus">🍅 工作模式</div>
+        <!-- 标签页导航 -->
+        <div class="tabs-nav">
+            <button class="tab-btn active" data-tab="todo">
+                <span class="tab-icon">📋</span>
+                <span class="tab-text">待办事项</span>
+            </button>
+            <button class="tab-btn" data-tab="pomodoro">
+                <span class="tab-icon">🍅</span>
+                <span class="tab-text">番茄时钟</span>
+            </button>
+            <button class="tab-btn" data-tab="recurring">
+                <span class="tab-icon">🔄</span>
+                <span class="tab-text">定期任务</span>
+            </button>
+        </div>
+
+        <!-- 标签页内容 -->
+        <div class="tabs-content">
+            <!-- 待办事项标签页 -->
+            <div class="tab-pane active" id="todo">
+                <div class="input-section">
+                    <input type="text" id="todoInput" placeholder="添加新的待办事项..." />
+                    <input type="datetime-local" id="reminderInput" />
+                    <select id="priorityInput">
+                        <option value="low">🟢 低优先级</option>
+                        <option value="medium" selected>🟡 中优先级</option>
+                        <option value="high">🔴 高优先级</option>
+                    </select>
+                    <select id="recurrenceInput">
+                        <option value="none">不重复</option>
+                        <option value="daily">每天重复</option>
+                        <option value="weekly">每周重复</option>
+                        <option value="monthly">每月重复</option>
+                        <option value="yearly">每年重复</option>
+                    </select>
+                    <button id="addBtn">➕ 添加</button>
+                </div>
+
+                <div class="filter-section">
+                    <button class="filter-btn active" data-filter="all">全部</button>
+                    <button class="filter-btn" data-filter="pending">待完成</button>
+                    <button class="filter-btn" data-filter="completed">已完成</button>
+                </div>
+
+                <div class="stats">
+                    <span id="totalCount">总计: 0</span>
+                    <span id="pendingCount">待完成: 0</span>
+                    <span id="completedCount">已完成: 0</span>
+                </div>
+
+                <ul id="todoList" class="todo-list"></ul>
+
+                <div class="actions">
+                    <button id="clearCompleted">🗑️ 清除已完成</button>
+                    <button id="exportBtn">📤 导出数据</button>
+                    <button id="importBtn">📥 导入数据</button>
+                    <input type="file" id="importFile" accept=".json" style="display: none;" />
+                </div>
             </div>
-            <div class="pomodoro-controls">
-                <button id="pomodoroStart">▶️ 开始</button>
-                <button id="pomodoroPause" disabled>⏸️ 暂停</button>
-                <button id="pomodoroReset">🔄 重置</button>
-                <button id="pomodoroMode">🔄 切换模式</button>
+
+            <!-- 番茄时钟标签页 -->
+            <div class="tab-pane" id="pomodoro">
+                <div class="pomodoro-section">
+                    <div class="pomodoro-display">
+                        <div id="pomodoroTimer">25:00</div>
+                        <div id="pomodoroStatus">🍅 工作模式</div>
+                        <div class="pomodoro-tips">
+                            <p>💡 专注工作25分钟，休息5分钟</p>
+                        </div>
+                    </div>
+                    <div class="pomodoro-controls">
+                        <button id="pomodoroStart">▶️ 开始</button>
+                        <button id="pomodoroPause" disabled>⏸️ 暂停</button>
+                        <button id="pomodoroReset">🔄 重置</button>
+                        <button id="pomodoroMode">🔄 切换模式</button>
+                    </div>
+                    <div class="pomodoro-stats">
+                        <h3>📊 番茄工作法</h3>
+                        <ul>
+                            <li>✅ 选择一个任务</li>
+                            <li>⏱️ 专注工作25分钟</li>
+                            <li>☕ 休息5分钟</li>
+                            <li>🔄 重复4次</li>
+                            <li>🎉 长休息15-30分钟</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
-        </div>
 
-        <!-- 定期任务 -->
-        <div class="recurring-section">
-            <h2>🔄 定期任务</h2>
-            <div class="recurring-input">
-                <input type="text" id="recurringInput" placeholder="添加定期任务..." />
-                <select id="recurringInterval">
-                    <option value="daily">每天</option>
-                    <option value="weekly">每周</option>
-                    <option value="monthly">每月</option>
-                    <option value="yearly">每年</option>
-                </select>
-                <button id="addRecurringBtn">➕ 添加</button>
+            <!-- 定期任务标签页 -->
+            <div class="tab-pane" id="recurring">
+                <div class="recurring-section">
+                    <h2>🔄 定期任务管理</h2>
+                    <p class="section-desc">设置自动重复的任务，系统会按时创建待办事项</p>
+                    
+                    <div class="recurring-input">
+                        <input type="text" id="recurringInput" placeholder="添加定期任务..." />
+                        <select id="recurringInterval">
+                            <option value="daily">📅 每天</option>
+                            <option value="weekly">📆 每周</option>
+                            <option value="monthly">🗓️ 每月</option>
+                            <option value="yearly">📅 每年</option>
+                        </select>
+                        <button id="addRecurringBtn">➕ 添加</button>
+                    </div>
+
+                    <div class="recurring-examples">
+                        <h3>💡 示例</h3>
+                        <div class="example-grid">
+                            <div class="example-card">
+                                <span class="example-icon">🏃</span>
+                                <span class="example-text">每天晨跑30分钟</span>
+                            </div>
+                            <div class="example-card">
+                                <span class="example-icon">📝</span>
+                                <span class="example-text">每周写周报</span>
+                            </div>
+                            <div class="example-card">
+                                <span class="example-icon">💰</span>
+                                <span class="example-text">每月支付账单</span>
+                            </div>
+                            <div class="example-card">
+                                <span class="example-icon">🏥</span>
+                                <span class="example-text">每年体检</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3>📋 我的定期任务</h3>
+                    <ul id="recurringList" class="recurring-list"></ul>
+                </div>
             </div>
-            <ul id="recurringList" class="recurring-list"></ul>
-        </div>
-
-        <!-- 待办事项输入 -->
-        <div class="input-section">
-            <input type="text" id="todoInput" placeholder="添加新的待办事项..." />
-            <input type="datetime-local" id="reminderInput" />
-            <select id="priorityInput">
-                <option value="low">🟢 低优先级</option>
-                <option value="medium" selected>🟡 中优先级</option>
-                <option value="high">🔴 高优先级</option>
-            </select>
-            <select id="recurrenceInput">
-                <option value="none">不重复</option>
-                <option value="daily">每天重复</option>
-                <option value="weekly">每周重复</option>
-                <option value="monthly">每月重复</option>
-                <option value="yearly">每年重复</option>
-            </select>
-            <button id="addBtn">➕ 添加</button>
-        </div>
-
-        <!-- 筛选 -->
-        <div class="filter-section">
-            <button class="filter-btn active" data-filter="all">全部</button>
-            <button class="filter-btn" data-filter="pending">待完成</button>
-            <button class="filter-btn" data-filter="completed">已完成</button>
-        </div>
-
-        <!-- 统计 -->
-        <div class="stats">
-            <span id="totalCount">总计: 0</span>
-            <span id="pendingCount">待完成: 0</span>
-            <span id="completedCount">已完成: 0</span>
-        </div>
-
-        <!-- 待办列表 -->
-        <ul id="todoList" class="todo-list"></ul>
-
-        <!-- 操作按钮 -->
-        <div class="actions">
-            <button id="clearCompleted">🗑️ 清除已完成</button>
-            <button id="exportBtn">📤 导出数据</button>
-            <button id="importBtn">📥 导入数据</button>
-            <input type="file" id="importFile" accept=".json" style="display: none;" />
         </div>
 
         <div id="notification" class="notification"></div>
