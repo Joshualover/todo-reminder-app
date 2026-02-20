@@ -1,4 +1,4 @@
-// 待办事项应用 v2.0 - 标签页版本
+// 待办事项应用 v2.1 - 底部导航版本
 class TodoApp {
     constructor() {
         this.todos = JSON.parse(localStorage.getItem('todos')) || [];
@@ -19,9 +19,9 @@ class TodoApp {
 
     cacheDOM() {
         this.dom = {
-            // 标签页
-            tabBtns: document.querySelectorAll('.tab-btn'),
-            tabPanes: document.querySelectorAll('.tab-pane'),
+            // 底部导航
+            navItems: document.querySelectorAll('.nav-item'),
+            pages: document.querySelectorAll('.page'),
             // 待办事项
             todoInput: document.getElementById('todoInput'),
             reminderInput: document.getElementById('reminderInput'),
@@ -55,9 +55,9 @@ class TodoApp {
     }
 
     bindEvents() {
-        // 标签页切换
-        this.dom.tabBtns.forEach(btn => {
-            btn.addEventListener('click', () => this.switchTab(btn.dataset.tab));
+        // 底部导航切换
+        this.dom.navItems.forEach(btn => {
+            btn.addEventListener('click', () => this.switchPage(btn.dataset.page));
         });
 
         // 待办事项
@@ -83,22 +83,24 @@ class TodoApp {
         this.dom.pomodoroStart.addEventListener('click', () => this.startPomodoro());
         this.dom.pomodoroPause.addEventListener('click', () => this.pausePomodoro());
         this.dom.pomodoroReset.addEventListener('click', () => this.resetPomodoro());
-        this.dom.pomodoroMode.addEventListener('click', () => this.switchPomodoroMode());
+        if (this.dom.pomodoroMode) {
+            this.dom.pomodoroMode.addEventListener('click', () => this.switchPomodoroMode());
+        }
 
         // 定期任务
         this.dom.addRecurringBtn.addEventListener('click', () => this.addRecurringTask());
     }
 
-    // ========== 标签页切换 ==========
-    switchTab(tabName) {
-        // 更新按钮状态
-        this.dom.tabBtns.forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.tab === tabName);
+    // ========== 底部导航切换 ==========
+    switchPage(pageName) {
+        // 更新导航按钮状态
+        this.dom.navItems.forEach(item => {
+            item.classList.toggle('active', item.dataset.page === pageName);
         });
 
-        // 更新内容显示
-        this.dom.tabPanes.forEach(pane => {
-            pane.classList.toggle('active', pane.id === tabName);
+        // 更新页面显示
+        this.dom.pages.forEach(page => {
+            page.classList.toggle('active', page.id === `page-${pageName}`);
         });
     }
 
@@ -147,7 +149,6 @@ class TodoApp {
         if (todo) {
             todo.completed = !todo.completed;
             
-            // 如果是定期任务，完成后自动生成下一次
             if (todo.completed && todo.recurrence) {
                 this.createNextOccurrence(todo);
             }
@@ -235,9 +236,6 @@ class TodoApp {
         if (filteredTodos.length === 0) {
             this.dom.todoList.innerHTML = `
                 <div class="empty-state">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                    </svg>
                     <p>还没有待办事项，添加一个吧！</p>
                 </div>
             `;
@@ -252,7 +250,6 @@ class TodoApp {
                     <div class="todo-meta">
                         ${todo.reminder ? `<span>${this.formatReminder(todo.reminder)}</span>` : ''}
                         ${todo.recurrence ? `<span class="recurrence-badge">${this.getIntervalText(todo.recurrence)}</span>` : ''}
-                        <span>📅 ${new Date(todo.createdAt).toLocaleDateString('zh-CN')}</span>
                     </div>
                 </div>
                 <div class="todo-actions">
@@ -262,7 +259,6 @@ class TodoApp {
             </li>
         `).join('');
 
-        // 绑定事件
         this.dom.todoList.querySelectorAll('.todo-checkbox').forEach((checkbox, index) => {
             checkbox.addEventListener('change', () => this.toggleTodo(filteredTodos[index].id));
         });
@@ -283,7 +279,6 @@ class TodoApp {
 
         this.dom.totalCount.textContent = `总计: ${total}`;
         this.dom.pendingCount.textContent = `待完成: ${pending}`;
-        this.dom.completedCount.textContent = `已完成: ${completed}`;
     }
 
     scheduleReminder(todo) {
@@ -469,11 +464,9 @@ class TodoApp {
 
         this.dom.recurringList.innerHTML = this.recurringTasks.map(task => `
             <li class="recurring-item">
-                <div class="recurring-content">
-                    <div class="recurring-text">${this.escapeHtml(task.text)}</div>
-                    <div class="recurring-meta">
-                        <span class="recurring-badge">${this.getIntervalText(task.interval)}</span>
-                    </div>
+                <div>
+                    <span class="recurring-text">${this.escapeHtml(task.text)}</span>
+                    <span class="recurring-badge">${this.getIntervalText(task.interval)}</span>
                 </div>
                 <button class="todo-btn delete-btn" onclick="app.deleteRecurringTask(${task.id})">🗑️</button>
             </li>
@@ -482,10 +475,10 @@ class TodoApp {
 
     getIntervalText(interval) {
         const map = {
-            daily: '📅 每天',
-            weekly: '📆 每周',
-            monthly: '🗓️ 每月',
-            yearly: '📅 每年'
+            daily: '每天',
+            weekly: '每周',
+            monthly: '每月',
+            yearly: '每年'
         };
         return map[interval] || interval;
     }
